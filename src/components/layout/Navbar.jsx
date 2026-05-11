@@ -15,7 +15,7 @@ export function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
           <span className="text-2xl transition-transform group-hover:scale-110">🛒</span>
-          <span className="font-display font-bold text-lg gradient-text">Mercadito</span>
+          <span className="font-display font-bold text-lg gradient-text">Ahorrito</span>
         </Link>
 
         {/* Desktop Search */}

@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-xl">🛒</span>
-            <span className="font-display font-bold gradient-text">Mercadito</span>
+            <span className="font-display font-bold gradient-text">Ahorrito</span>
           </div>
           <div className="flex items-center gap-6 text-sm" style={{ color: 'var(--text-muted)' }}>
             <Link to="/" className="hover:text-emerald-500 transition-colors">Inicio</Link>

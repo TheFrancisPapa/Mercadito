@@ -62,7 +62,7 @@ export default function Register() {
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">🛒</div>
           <h1 className="font-display text-2xl font-bold">Creá tu cuenta</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Unite a la comunidad de Mercadito</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Unite a la comunidad de Ahorrito</p>
         </div>
 
         <form onSubmit={handleRegister} className="card p-6">

@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
-// MERCADITO — Core Hooks
+// AHORRITO — Core Hooks
 // ═══════════════════════════════════════════════════════════════
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { estandarizarNombre, normalizarPresentacion } from '../data/constants'
 
-const STORAGE_KEY_UBICACION = 'mercadito_ubicacion'
+const STORAGE_KEY_UBICACION = 'ahorrito_ubicacion'
 
 // ── Hook de ubicación ───────────────────────────────────────
 export function useUbicacion() {
