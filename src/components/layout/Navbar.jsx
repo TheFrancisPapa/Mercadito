@@ -21,10 +21,10 @@ export function Navbar() {
         <div className="container-app h-16 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110 relative" style={{ zIndex: 10 }}>
-              <img src="/logo.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-md" />
+            <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center transition-transform group-hover:scale-110 relative" style={{ zIndex: 10 }}>
+              <img src="/logo.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-md scale-125" />
             </div>
-            <span className="font-display font-bold text-xl gradient-text tracking-tight hidden sm:block">Ahorrito</span>
+            <span className="font-display font-bold text-xl md:text-2xl gradient-text tracking-tight">Ahorrito</span>
           </Link>
 
           {/* Desktop Search */}
