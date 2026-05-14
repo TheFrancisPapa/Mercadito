@@ -10,6 +10,7 @@ import Register from './pages/Auth/Register'
 import AddPrice from './pages/AddPrice'
 import Profile from './pages/Profile'
 import Moderation from './pages/Moderation'
+import SmartCart from './pages/SmartCart'
 import { useAuth } from './context/AuthContext'
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="/registro" element={<Register />} />
           <Route path="/perfil" element={<Profile />} />
           <Route path="/moderacion" element={<Moderation />} />
+          <Route path="/lista-inteligente" element={<SmartCart />} />
         </Routes>
       </main>
       <Footer />

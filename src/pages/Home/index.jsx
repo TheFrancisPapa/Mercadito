@@ -269,7 +269,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 mb-12">
               <div className="card card-premium p-6 md:p-8 text-center transition-transform hover:-translate-y-1">
                 <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5" style={{ background: 'var(--brand-glow)', color: 'var(--brand)' }}>
                   <Heart size={28} />
@@ -293,6 +293,15 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-bold mb-3">Ganá Reputación</h3>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>Tus aportes te suman puntos. Convertite en un usuario verificado y confiable para toda la comunidad.</p>
+              </div>
+
+              <div className="card card-premium p-6 md:p-8 text-center transition-transform hover:-translate-y-1" style={{ borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 relative z-10" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+                  <Sparkles size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-3 relative z-10">Ahorrito AI</h3>
+                <p className="text-sm leading-relaxed relative z-10" style={{ color: 'var(--text-muted)' }}>Armá tu lista de compras y nuestro algoritmo te dirá en qué supermercado gastarás menos.</p>
               </div>
             </div>
 

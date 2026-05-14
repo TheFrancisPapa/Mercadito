@@ -1,11 +1,13 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { Search, Plus, User, Shield, LogOut, Menu, X, Home, Tag } from 'lucide-react'
+import { useTheme } from '../../context/ThemeContext'
+import { Search, Plus, User, Shield, LogOut, Menu, X, Home, Tag, Sparkles, Sun, Moon } from 'lucide-react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function Navbar() {
   const { usuario, esMod, logout } = useAuth()
+  const { isDarkMode, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -50,10 +52,18 @@ export function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-1.5">
+            <button onClick={toggleTheme} className="btn btn-ghost btn-sm" title={isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
+              style={{ borderRadius: 'var(--radius-full)' }}>
+              {isDarkMode ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
             {usuario ? (
               <>
                 <button onClick={() => navigate('/cargar-precio')} className="btn btn-primary btn-sm">
                   <Plus size={15} /> Cargar Precio
+                </button>
+                <button onClick={() => navigate('/lista-inteligente')} className="btn btn-ghost btn-sm" title="Carrito Inteligente"
+                  style={{ borderRadius: 'var(--radius-full)', color: 'var(--brand)' }}>
+                  <Sparkles size={17} />
                 </button>
                 {esMod && (
                   <button onClick={() => navigate('/moderacion')} className="btn btn-ghost btn-sm" title="Moderación"
@@ -80,6 +90,10 @@ export function Navbar() {
 
           {/* Mobile: Only hamburger for auth actions, main nav is bottom bar */}
           <div className="md:hidden flex items-center gap-1">
+            <button onClick={toggleTheme} className="btn btn-ghost btn-sm p-2"
+              style={{ borderRadius: 'var(--radius-full)' }}>
+              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             {usuario ? (
               <button onClick={() => setMenuOpen(!menuOpen)} className="btn btn-ghost btn-sm p-2"
                 style={{ borderRadius: 'var(--radius-full)' }}>
@@ -141,6 +155,12 @@ export function Navbar() {
               <div className="bottom-nav-item-cta">
                 <Plus size={24} strokeWidth={2.5} />
               </div>
+            </button>
+
+            <button className={`bottom-nav-item ${isActive('/lista-inteligente') ? 'active' : ''}`}
+              onClick={() => navigate('/lista-inteligente')}>
+              <Sparkles size={22} strokeWidth={isActive('/lista-inteligente') ? 2.5 : 1.8} className="text-emerald-500" />
+              <span>Ahorrito AI</span>
             </button>
 
             <button className={`bottom-nav-item ${isActive('/perfil') ? 'active' : ''}`}

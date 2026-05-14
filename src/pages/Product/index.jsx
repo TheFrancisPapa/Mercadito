@@ -161,6 +161,7 @@ export default function ProductDetail() {
                             {p.en_oferta && <span className="badge badge-red">🔥 Oferta</span>}
                             {p.es_retornable && <span className="badge badge-sky">♻️ Ret.</span>}
                             {p.comercio_verificado && <span className="badge badge-brand">✓</span>}
+                            {p.votos_ok > (p.votos_desactual || 0) && <span className="badge" style={{ background: 'var(--brand-glow)', color: 'var(--brand-dark)', borderColor: 'var(--brand-light)' }}>✓ Verificado</span>}
                           </div>
                           <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>{p.comercio_dir || tipoInfo?.nombre}</p>
                           {p.canal !== 'local' && (
@@ -208,9 +209,13 @@ export default function ProductDetail() {
                         )}
                         <div className="flex items-center gap-1">
                           <button onClick={() => handleVoto(p.precio_id, 'ok')} disabled={votando === p.precio_id || !usuario}
-                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all active:scale-95 disabled:opacity-50"
+                            className="px-2 py-1 rounded-lg text-[10px] font-bold transition-all active:scale-95 disabled:opacity-50"
                             style={{ background: 'var(--brand-glow)', color: 'var(--brand-dark)' }}
-                            title={!usuario ? 'Iniciá sesión para votar' : ''}>👍 Confirmo</button>
+                            title={!usuario ? 'Iniciá sesión para votar' : ''}>👍 {p.votos_ok > 0 ? p.votos_ok : ''}</button>
+                          <button onClick={() => handleVoto(p.precio_id, 'desactualizado')} disabled={votando === p.precio_id || !usuario}
+                            className="px-2 py-1 rounded-lg text-[10px] font-bold transition-all active:scale-95 disabled:opacity-50"
+                            style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}
+                            title={!usuario ? 'Iniciá sesión para votar' : ''}>👎 {p.votos_desactual > 0 ? p.votos_desactual : ''}</button>
                           <button onClick={() => { setEditandoPrecioId(p.precio_id); setNuevoPrecioInput('') }} disabled={!usuario}
                             className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all active:scale-95 disabled:opacity-50"
                             style={{ background: 'var(--accent-glow)', color: '#d97706' }}
