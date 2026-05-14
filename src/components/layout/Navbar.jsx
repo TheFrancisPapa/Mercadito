@@ -21,8 +21,8 @@ export function Navbar() {
         <div className="container-app h-16 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl md:rounded-2xl overflow-hidden bg-white flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] shadow-md border-2 border-transparent dark:border-teal-900/30 relative" style={{ zIndex: 10 }}>
-              <img src="/logo.png" alt="Ahorrito Logo" className="w-[85%] h-[85%] object-contain transition-transform duration-300 group-hover:scale-110" />
+            <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center transition-all duration-300 group-hover:scale-110 relative" style={{ zIndex: 10 }}>
+              <img src="/logo.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-[0_4px_8px_rgba(16,185,129,0.3)] transition-transform duration-300" />
             </div>
             <span className="font-display font-bold text-xl md:text-2xl tracking-tight bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent drop-shadow-sm">Ahorrito</span>
           </Link>
