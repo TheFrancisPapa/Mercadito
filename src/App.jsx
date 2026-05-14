@@ -20,9 +20,8 @@ export default function App() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-hero-mesh)' }}>
         <div className="text-center animate-fade-in">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-5 animate-float"
-               style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            🛒
+          <div className="w-20 h-20 flex items-center justify-center mx-auto mb-5 animate-float drop-shadow-xl relative z-10">
+            <img src="/logo.png" alt="Cargando Ahorrito..." className="w-full h-full object-contain" />
           </div>
           <p className="font-display font-bold text-xl text-white/90 mb-4">Ahorrito</p>
           <div className="w-8 h-8 border-3 border-white/20 border-t-teal-300 rounded-full animate-spin mx-auto" />
