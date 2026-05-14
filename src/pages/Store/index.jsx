@@ -23,15 +23,8 @@ export default function StoreProfile() {
     async function cargar() {
       const { data: c } = await supabase.from('comercios').select('*').eq('id', id).single()
       setComercio(c)
-
-      const { data: p } = await supabase
-        .from('precios_productos')
-        .select('*, productos(nombre, marca, presentacion, categoria)')
-        .eq('comercio_id', id)
-        .order('updated_at', { ascending: false })
-        .limit(20)
-      setPrecios(p || [])
-      setCargando(false)
+      const { data: p } = await supabase.from('precios_productos').select('*, productos(nombre, marca, presentacion, categoria)').eq('comercio_id', id).order('updated_at', { ascending: false }).limit(20)
+      setPrecios(p || []); setCargando(false)
     }
     cargar()
   }, [id])
@@ -41,34 +34,27 @@ export default function StoreProfile() {
     setGuardandoReview(true)
     try {
       await crearReview(id, nuevaEstrellas, nuevoComentario)
-      setNuevaEstrellas(0)
-      setNuevoComentario('')
+      setNuevaEstrellas(0); setNuevoComentario('')
       await recargarReviews()
-      // Reload store to get updated rating
       const { data: c } = await supabase.from('comercios').select('*').eq('id', id).single()
       setComercio(c)
     } catch (e) { console.error(e) }
     finally { setGuardandoReview(false) }
   }
 
-  if (cargando) {
-    return <div className="max-w-4xl mx-auto px-4 py-8"><div className="skeleton h-40" /><div className="skeleton h-24 mt-4" /></div>
-  }
-
-  if (!comercio) {
-    return <div className="max-w-4xl mx-auto px-4 py-16 text-center"><div className="text-5xl mb-4">😕</div><h2 className="font-display text-xl font-bold">Comercio no encontrado</h2></div>
-  }
+  if (cargando) return <div className="container-app max-w-4xl py-8"><div className="skeleton h-40" /><div className="skeleton h-24 mt-4" /></div>
+  if (!comercio) return <div className="container-app max-w-4xl py-16 text-center"><div className="text-5xl mb-4">😕</div><h2 className="font-display text-xl font-bold">Comercio no encontrado</h2></div>
 
   const tipoInfo = TIPOS_COMERCIO.find(t => t.id === comercio.tipo)
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-emerald-600 font-semibold mb-4 hover:text-emerald-700 active:scale-95">
+    <div className="container-app max-w-4xl py-6">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm font-semibold mb-4 active:scale-95" style={{ color: 'var(--brand)' }}>
         <ArrowLeft size={16} /> Volver
       </button>
 
       {/* Store Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card p-6 mb-6">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card p-6 mb-6" style={{ boxShadow: 'var(--shadow-lg)' }}>
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: 'var(--brand-glow)' }}>
             {comercio.logo_url ? <img src={comercio.logo_url} alt="" className="w-full h-full object-cover rounded-2xl" /> : tipoInfo?.emoji || '🏪'}
@@ -78,11 +64,9 @@ export default function StoreProfile() {
               <h1 className="text-xl font-bold font-display">{comercio.nombre}</h1>
               {comercio.verificado && <span className="badge badge-brand">✓ Verificado</span>}
             </div>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              {tipoInfo?.nombre || comercio.tipo} · {comercio.ciudad}, {comercio.provincia}
-            </p>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{tipoInfo?.nombre || comercio.tipo} · {comercio.ciudad}, {comercio.provincia}</p>
             {comercio.direccion && <p className="text-xs flex items-center gap-1 mt-1" style={{ color: 'var(--text-secondary)' }}><MapPin size={12} /> {comercio.direccion}</p>}
-            <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-3 mt-2.5">
               {comercio.rating_promedio > 0 && (
                 <div className="flex items-center gap-1">
                   <Star size={14} className="text-amber-400 fill-amber-400" />
@@ -96,19 +80,18 @@ export default function StoreProfile() {
         </div>
       </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Products list */}
+      <div className="grid lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2">
           <h3 className="text-sm font-bold mb-3">🏷️ Productos en este comercio</h3>
           {precios.length === 0 ? (
-            <div className="card p-8 text-center">
+            <div className="card p-8 text-center" style={{ background: 'var(--bg-secondary)' }}>
               <p className="text-3xl mb-2">📦</p>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Aún no hay precios cargados para este comercio</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2">
               {precios.map((p, i) => (
-                <motion.div key={p.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="card p-3 card-hover">
+                <motion.div key={p.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="card p-3.5 card-hover">
                   <Link to={`/producto/${p.producto_id}`} className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold truncate">{p.productos?.nombre}</p>
@@ -118,7 +101,7 @@ export default function StoreProfile() {
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-3">
-                      <p className="text-base font-black text-emerald-600">{fmtPrecio(p.en_oferta && p.precio_oferta ? p.precio_oferta : p.precio)}</p>
+                      <p className="text-base font-extrabold" style={{ color: 'var(--brand)' }}>{fmtPrecio(p.en_oferta && p.precio_oferta ? p.precio_oferta : p.precio)}</p>
                       <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{tiempoDesde(p.updated_at)}</p>
                     </div>
                   </Link>
@@ -128,13 +111,10 @@ export default function StoreProfile() {
           )}
         </div>
 
-        {/* Reviews sidebar */}
         <div className="lg:col-span-1">
           <h3 className="text-sm font-bold mb-3 flex items-center gap-2">⭐ Reseñas</h3>
-
-          {/* New Review */}
           {usuario && (
-            <div className="card p-4 mb-4">
+            <div className="card p-4 mb-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
               <p className="text-xs font-bold mb-2">Tu opinión</p>
               <div className="flex gap-1 mb-3">
                 {[1, 2, 3, 4, 5].map(s => (
@@ -149,19 +129,14 @@ export default function StoreProfile() {
               </button>
             </div>
           )}
-
           {reviews.length === 0 ? (
-            <div className="card p-4 text-center">
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Sin reseñas aún</p>
-            </div>
+            <div className="card p-4 text-center" style={{ background: 'var(--bg-secondary)' }}><p className="text-sm" style={{ color: 'var(--text-muted)' }}>Sin reseñas aún</p></div>
           ) : (
             <div className="flex flex-col gap-2">
               {reviews.map(r => (
-                <div key={r.id} className="card p-3">
+                <div key={r.id} className="card p-3.5">
                   <div className="flex items-center gap-1 mb-1">
-                    {[1, 2, 3, 4, 5].map(s => (
-                      <Star key={s} size={12} className={s <= r.estrellas ? 'text-amber-400 fill-amber-400' : 'text-gray-200'} />
-                    ))}
+                    {[1, 2, 3, 4, 5].map(s => <Star key={s} size={12} className={s <= r.estrellas ? 'text-amber-400 fill-amber-400' : 'text-gray-200'} />)}
                     <span className="text-[10px] ml-auto" style={{ color: 'var(--text-muted)' }}>{tiempoDesde(r.created_at)}</span>
                   </div>
                   {r.comentario && <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{r.comentario}</p>}

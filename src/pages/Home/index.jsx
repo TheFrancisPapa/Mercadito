@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Search, TrendingDown, Store, Users, ArrowRight, Sparkles } from 'lucide-react'
+import { Search, TrendingDown, Store, Users, ArrowRight, Sparkles, ChevronRight, Zap, Heart, Shield } from 'lucide-react'
 import { CATEGORIAS_PRODUCTO } from '../../data/constants'
 import { useUbicacion, usePopulares } from '../../hooks/useMercado'
 import { fmtPrecio } from '../../data/constants'
@@ -15,7 +15,6 @@ export default function Home() {
   const { ubicacion } = useUbicacion()
   const { populares } = usePopulares(ubicacion.ciudad, ubicacion.provincia)
 
-  // Animated placeholder
   useEffect(() => {
     const interval = setInterval(() => {
       setPlaceholderIdx(i => (i + 1) % HERO_EXAMPLES.length)
@@ -33,34 +32,47 @@ export default function Home() {
   return (
     <div>
       {/* ═══ Hero Section ═══ */}
-      <section
-        className="relative overflow-hidden"
-        style={{ background: 'var(--gradient-hero)' }}
-      >
-        {/* Decorative blobs */}
-        <div className="absolute top-[-10%] right-[-5%] w-96 h-96 rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, #34d399 0%, transparent 70%)' }} />
-        <div className="absolute bottom-[-20%] left-[-10%] w-80 h-80 rounded-full opacity-8"
-          style={{ background: 'radial-gradient(circle, #10b981 0%, transparent 70%)' }} />
+      <section className="relative overflow-hidden hero-pattern"
+        style={{ background: 'var(--gradient-hero-mesh)' }}>
+        
+        {/* Animated orbs */}
+        <div className="absolute top-10 right-[10%] w-72 h-72 rounded-full animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(45,212,191,0.15) 0%, transparent 70%)', animationDelay: '0s' }} />
+        <div className="absolute bottom-0 left-[5%] w-96 h-96 rounded-full animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', animationDelay: '1.5s' }} />
+        <div className="absolute top-1/2 right-[30%] w-48 h-48 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)' }} />
 
-        <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24">
+        <div className="relative container-app py-16 md:py-24 lg:py-28">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            className="text-center max-w-3xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-sm text-emerald-200 mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6"
+              style={{ 
+                background: 'rgba(255,255,255,0.08)', 
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(167,243,208,0.9)'
+              }}>
               <Sparkles size={14} />
               Precios verificados por la comunidad
             </div>
 
-            <h1 className="font-display text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
-              Compará precios<br />
-              <span className="text-emerald-300">en tu ciudad</span>
+            <h1 className="font-display font-extrabold text-white leading-[1.1] mb-5"
+              style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)' }}>
+              Compará precios{' '}
+              <span style={{ 
+                background: 'linear-gradient(135deg, #2dd4bf, #a7f3d0, #fbbf24)', 
+                WebkitBackgroundClip: 'text', 
+                WebkitTextFillColor: 'transparent' 
+              }}>en tu ciudad</span>
             </h1>
 
-            <p className="text-emerald-100/80 text-lg max-w-lg mx-auto mb-8">
+            <p className="text-base md:text-lg max-w-xl mx-auto mb-9 leading-relaxed"
+              style={{ color: 'rgba(167,243,208,0.7)' }}>
               Encontrá dónde comprar más barato. Buscá cualquier producto y
               compará precios en todos los comercios cerca tuyo.
             </p>
@@ -68,20 +80,22 @@ export default function Home() {
             {/* Search Bar */}
             <form onSubmit={handleSearch} className="max-w-xl mx-auto">
               <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity" />
-                <div className="relative flex items-center bg-white rounded-2xl shadow-2xl overflow-hidden">
-                  <Search className="ml-5 text-gray-400 flex-shrink-0" size={22} />
+                <div className="absolute -inset-1.5 rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity duration-500"
+                  style={{ background: 'linear-gradient(135deg, rgba(45,212,191,0.5), rgba(13,148,136,0.4), rgba(245,158,11,0.2))' }} />
+                <div className="relative flex items-center rounded-2xl overflow-hidden"
+                  style={{ background: 'white', boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 0 40px rgba(13,148,136,0.1)' }}>
+                  <Search className="ml-5 flex-shrink-0" size={22} style={{ color: 'var(--brand)' }} />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder={`Buscar ${HERO_EXAMPLES[placeholderIdx]}...`}
-                    className="flex-1 py-4 px-4 text-base text-gray-900 placeholder-gray-400 outline-none bg-transparent"
+                    className="flex-1 min-w-0 py-4 md:py-4.5 px-3 md:px-4 text-sm md:text-base text-gray-900 placeholder-gray-400 outline-none bg-transparent"
                   />
                   <button
                     type="submit"
-                    className="mr-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:scale-105 active:scale-95"
-                    style={{ background: 'var(--gradient-brand)' }}
+                    className="mr-2 flex-shrink-0 px-4 md:px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:scale-105 active:scale-95"
+                    style={{ background: 'var(--gradient-brand)', boxShadow: 'var(--shadow-brand)' }}
                   >
                     Buscar
                   </button>
@@ -89,15 +103,22 @@ export default function Home() {
               </div>
             </form>
 
-            {/* Quick search chips */}
-            <div className="flex flex-wrap justify-center gap-2 mt-6">
+            {/* Quick chips */}
+            <div className="flex flex-wrap justify-center gap-2 mt-7">
               {HERO_EXAMPLES.map(term => (
                 <button
                   key={term}
                   onClick={() => navigate(`/buscar?q=${encodeURIComponent(term)}`)}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 text-white/80 border border-white/10 hover:bg-white/20 hover:text-white transition-all active:scale-95"
+                  className="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95"
+                  style={{ 
+                    background: 'rgba(255,255,255,0.08)', 
+                    color: 'rgba(255,255,255,0.75)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                  onMouseEnter={e => { e.target.style.background = 'rgba(255,255,255,0.15)'; e.target.style.color = 'white' }}
+                  onMouseLeave={e => { e.target.style.background = 'rgba(255,255,255,0.08)'; e.target.style.color = 'rgba(255,255,255,0.75)' }}
                 >
-                  🔍 {term}
+                  {term}
                 </button>
               ))}
             </div>
@@ -106,24 +127,28 @@ export default function Home() {
       </section>
 
       {/* ═══ Stats Banner ═══ */}
-      <section className="border-b" style={{ borderColor: 'var(--border)', background: 'var(--bg-card)' }}>
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-3 gap-4 text-center">
+      <section style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
+        <div className="container-app py-6 md:py-8">
+          <div className="grid grid-cols-3 gap-3 md:gap-6">
             {[
-              { icon: <TrendingDown size={20} className="text-emerald-500" />, label: 'Ahorrá hasta', value: '40%' },
-              { icon: <Store size={20} className="text-emerald-500" />, label: 'Comercios', value: '100+' },
-              { icon: <Users size={20} className="text-emerald-500" />, label: 'Comunidad', value: 'Activa' },
-            ].map(stat => (
+              { icon: <TrendingDown size={22} />, label: 'Ahorrá hasta', value: '40%', color: 'var(--brand)' },
+              { icon: <Store size={22} />, label: 'Comercios', value: '100+', color: 'var(--brand)' },
+              { icon: <Users size={22} />, label: 'Comunidad', value: 'Activa', color: 'var(--accent)' },
+            ].map((stat, i) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="flex flex-col items-center gap-1"
+                transition={{ delay: i * 0.1 }}
+                className="card-elevated flex flex-col items-center gap-1.5 p-4 md:p-5 text-center"
               >
-                {stat.icon}
-                <span className="text-xl font-bold font-display" style={{ color: 'var(--text-primary)' }}>{stat.value}</span>
-                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{stat.label}</span>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" 
+                     style={{ background: 'var(--brand-glow)', color: stat.color }}>
+                  {stat.icon}
+                </div>
+                <span className="text-xl md:text-2xl font-extrabold font-display" style={{ color: 'var(--text-primary)' }}>{stat.value}</span>
+                <span className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{stat.label}</span>
               </motion.div>
             ))}
           </div>
@@ -131,29 +156,30 @@ export default function Home() {
       </section>
 
       {/* ═══ Categories ═══ */}
-      <section className="py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2
+      <section className="py-10 md:py-14">
+        <div className="container-app">
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="font-display text-2xl font-bold mb-6 text-center"
+            className="text-center mb-8"
           >
-            Explorá por categoría
-          </motion.h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">Explorá por categoría</h2>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Encontrá lo que necesitás en segundos</p>
+          </motion.div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
             {CATEGORIAS_PRODUCTO.slice(0, 16).map((cat, i) => (
               <motion.button
                 key={cat.id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.03 }}
                 onClick={() => navigate(`/buscar?cat=${cat.id}`)}
-                className="card card-interactive p-4 flex flex-col items-center gap-2 group"
+                className="card card-interactive p-4 md:p-5 flex flex-col items-center gap-2.5 group"
               >
-                <span className="text-2xl transition-transform group-hover:scale-125">{cat.emoji}</span>
-                <span className="text-xs font-semibold text-center" style={{ color: 'var(--text-secondary)' }}>{cat.nombre}</span>
+                <span className="text-2xl md:text-3xl transition-transform group-hover:scale-125 group-hover:-translate-y-1">{cat.emoji}</span>
+                <span className="text-[11px] md:text-xs font-semibold text-center leading-tight" style={{ color: 'var(--text-secondary)' }}>{cat.nombre}</span>
               </motion.button>
             ))}
           </div>
@@ -162,18 +188,29 @@ export default function Home() {
 
       {/* ═══ Popular Products ═══ */}
       {populares.length > 0 && (
-        <section className="py-12 px-4" style={{ background: 'var(--bg-secondary)' }}>
-          <div className="max-w-6xl mx-auto">
-            <h2 className="font-display text-2xl font-bold mb-6">
-              🔥 Populares en {ubicacion.ciudad}
-            </h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="py-10 md:py-14" style={{ background: 'var(--bg-secondary)' }}>
+          <div className="container-app">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="font-display text-xl md:text-2xl font-bold flex items-center gap-2">
+                  <Zap size={20} className="text-amber-500" />
+                  Populares en {ubicacion.ciudad}
+                </h2>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Los más buscados por la comunidad</p>
+              </div>
+              <button onClick={() => navigate('/buscar')} 
+                className="btn btn-ghost btn-sm hidden sm:inline-flex" 
+                style={{ color: 'var(--brand)' }}>
+                Ver todos <ChevronRight size={14} />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {populares.slice(0, 8).map((prod, i) => {
                 const catInfo = CATEGORIAS_PRODUCTO.find(c => c.id === prod.categoria)
                 return (
                   <motion.button
                     key={prod.producto_id}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 12 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.05 }}
@@ -190,13 +227,13 @@ export default function Home() {
                         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                           {prod.marca} {prod.presentacion && `· ${prod.presentacion}`}
                         </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-lg font-black text-emerald-600">{fmtPrecio(prod.precio_min)}</span>
+                        <div className="flex items-center gap-2 mt-2.5">
+                          <span className="text-lg font-extrabold" style={{ color: 'var(--brand)' }}>{fmtPrecio(prod.precio_min)}</span>
                           {prod.precio_max > prod.precio_min && (
-                            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>— {fmtPrecio(prod.precio_max)}</span>
+                            <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>— {fmtPrecio(prod.precio_max)}</span>
                           )}
                         </div>
-                        <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>
+                        <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-muted)' }}>
                           {prod.cant_comercios} comercio{prod.cant_comercios !== 1 ? 's' : ''}
                         </p>
                       </div>
@@ -209,27 +246,62 @@ export default function Home() {
         </section>
       )}
 
-      {/* ═══ CTA Section ═══ */}
-      <section className="py-16 px-4">
-        <div className="max-w-3xl mx-auto text-center">
+      {/* ═══ CTA & Benefits Section ═══ */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-40 pointer-events-none" style={{ background: 'radial-gradient(circle at top right, rgba(45,212,191,0.15), transparent 50%)' }} />
+        <div className="container-app relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            className="max-w-5xl mx-auto"
           >
-            <h2 className="font-display text-3xl font-bold mb-4">
-              ¿Viste un precio? <span className="gradient-text">Compartilo</span>
-            </h2>
-            <p className="text-base mb-8" style={{ color: 'var(--text-secondary)' }}>
-              Ayudá a tu comunidad cargando precios. Cada aporte hace la diferencia
-              para que todos podamos comprar mejor.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={() => navigate('/cargar-precio')} className="btn btn-primary btn-lg">
-                <Plus size={18} /> Cargar un precio
+            <div className="text-center mb-12 md:mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-5"
+                style={{ background: 'var(--accent-glow)', color: '#d97706' }}>
+                <Sparkles size={12} /> Beneficios exclusivos
+              </div>
+              <h2 className="font-display text-3xl md:text-5xl font-bold mb-4 leading-tight">
+                ¿Por qué unirte a <span className="gradient-text">Ahorrito</span>?
+              </h2>
+              <p className="text-base md:text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Crear una cuenta es 100% gratis y te da acceso a herramientas diseñadas para maximizar tus ahorros todos los días.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 mb-12">
+              <div className="card card-premium p-6 md:p-8 text-center transition-transform hover:-translate-y-1">
+                <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5" style={{ background: 'var(--brand-glow)', color: 'var(--brand)' }}>
+                  <Heart size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Guarda Favoritos</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>Tené a mano los productos que comprás siempre y revisá sus precios al instante sin tener que buscarlos.</p>
+              </div>
+
+              <div className="card card-premium p-6 md:p-8 text-center relative overflow-hidden transition-transform hover:-translate-y-1" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 relative z-10" style={{ background: 'var(--accent-glow)', color: '#d97706' }}>
+                  <Plus size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-3 relative z-10">Aportá y Ayudá</h3>
+                <p className="text-sm leading-relaxed relative z-10" style={{ color: 'var(--text-muted)' }}>Cargá precios que veas en la calle y ayudá a miles de vecinos a ahorrar en su compra del mes.</p>
+              </div>
+
+              <div className="card card-premium p-6 md:p-8 text-center transition-transform hover:-translate-y-1">
+                <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5" style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#0284c7' }}>
+                  <Shield size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Ganá Reputación</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>Tus aportes te suman puntos. Convertite en un usuario verificado y confiable para toda la comunidad.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button onClick={() => navigate('/registro')} className="btn btn-primary btn-lg shadow-xl shadow-teal-500/20 px-8">
+                Crear cuenta gratis <ArrowRight size={18} className="ml-1" />
               </button>
-              <button onClick={() => navigate('/registro')} className="btn btn-secondary btn-lg">
-                Crear cuenta gratis <ArrowRight size={16} />
+              <button onClick={() => navigate('/login')} className="btn btn-ghost btn-lg" style={{ color: 'var(--text-secondary)' }}>
+                Ya tengo cuenta
               </button>
             </div>
           </motion.div>
