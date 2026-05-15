@@ -10,6 +10,7 @@ import Register from './pages/Auth/Register'
 import AddPrice from './pages/AddPrice'
 import Profile from './pages/Profile'
 import Moderation from './pages/Moderation'
+import SmartCart from './pages/SmartCart'
 import { useAuth } from './context/AuthContext'
 
 export default function App() {
@@ -17,17 +18,20 @@ export default function App() {
 
   if (cargando) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-hero-mesh)' }}>
         <div className="text-center animate-fade-in">
-          <div className="text-5xl mb-4 animate-float">🛒</div>
-          <div className="w-8 h-8 border-3 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mx-auto" />
+          <div className="w-24 h-24 flex items-center justify-center mx-auto mb-5 animate-float relative z-10">
+            <img src="/logo-v2.png" alt="Cargando Ahorrito..." className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(16,185,129,0.4)]" />
+          </div>
+          <p className="font-display font-bold text-xl text-white/90 mb-4">Ahorrito</p>
+          <div className="w-8 h-8 border-3 border-white/20 border-t-teal-300 rounded-full animate-spin mx-auto" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="min-h-screen flex flex-col has-bottom-nav" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <Navbar />
       <main className="flex-1">
         <Routes>
@@ -40,6 +44,7 @@ export default function App() {
           <Route path="/registro" element={<Register />} />
           <Route path="/perfil" element={<Profile />} />
           <Route path="/moderacion" element={<Moderation />} />
+          <Route path="/lista-inteligente" element={<SmartCart />} />
         </Routes>
       </main>
       <Footer />
