@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
+import logo from './assets/final-logo.png'
 import { Footer } from './components/layout/Footer'
 import Home from './pages/Home'
 import SearchResults from './pages/Search'
@@ -21,7 +22,7 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-hero-mesh)' }}>
         <div className="text-center animate-fade-in">
           <div className="w-24 h-24 flex items-center justify-center mx-auto mb-5 animate-float relative z-10">
-            <img src="/logo.png" alt="Cargando Ahorrito..." className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(16,185,129,0.4)]" />
+            <img src="/logo-v1.png" alt="Cargando Ahorrito..." className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(16,185,129,0.4)]" />
           </div>
           <p className="font-display font-bold text-xl text-white/90 mb-4">Ahorrito</p>
           <div className="w-8 h-8 border-3 border-white/20 border-t-teal-300 rounded-full animate-spin mx-auto" />
