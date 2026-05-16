@@ -15,7 +15,18 @@ export default function Register() {
   const [exito, setExito] = useState(false)
   const [cargando, setCargando] = useState(false)
 
-  const passStrength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3
+  const calculateStrength = (pass) => {
+    if (!pass) return 0
+    let score = 0
+    if (pass.length >= 8) score += 1
+    if (/[A-Z]/.test(pass)) score += 1
+    if (/[0-9]/.test(pass)) score += 1
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1
+    if (score >= 4) return 3
+    if (score >= 2) return 2
+    return 1
+  }
+  const passStrength = calculateStrength(password)
   const strengthColors = ['', '#ef4444', '#f59e0b', '#10b981']
   const strengthLabels = ['', 'Débil', 'Media', 'Fuerte']
 
@@ -23,7 +34,7 @@ export default function Register() {
     e.preventDefault()
     setError('')
     if (password !== confirm) { setError('Las contraseñas no coinciden'); return }
-    if (password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
+    if (passStrength < 3) { setError('La contraseña debe ser "Fuerte" (mínimo 8 caracteres, incluir mayúscula, número y símbolo)'); return }
     setCargando(true)
     try {
       const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
@@ -55,8 +66,9 @@ export default function Register() {
       {/* Brand Panel (Desktop) */}
       <div className="auth-brand hero-pattern">
         <div className="relative z-10 text-center max-w-md">
-          <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-6 animate-float"
-               style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}>🛒</div>
+          <div className="w-24 h-24 flex items-center justify-center mx-auto mb-6 animate-float relative z-10">
+            <img src="/logo-v2.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(16,185,129,0.4)]" />
+          </div>
           <h2 className="font-display text-3xl font-bold text-white mb-3">Unite a Ahorrito</h2>
           <p className="text-sm leading-relaxed" style={{ color: 'rgba(167,243,208,0.7)' }}>
             Ayudá a miles de personas a comprar mejor compartiendo precios
@@ -82,8 +94,9 @@ export default function Register() {
       <div className="auth-form">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <div className="lg:hidden w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"
-                 style={{ background: 'var(--brand-glow)' }}>🛒</div>
+            <div className="lg:hidden w-14 h-14 flex items-center justify-center mx-auto mb-4 relative z-10">
+              <img src="/logo-v2.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-[0_4px_8px_rgba(16,185,129,0.3)]" />
+            </div>
             <h1 className="font-display text-2xl font-bold">Creá tu cuenta</h1>
             <p className="text-sm mt-1.5" style={{ color: 'var(--text-muted)' }}>Unite a la comunidad de Ahorrito</p>
           </div>
@@ -111,7 +124,7 @@ export default function Register() {
               <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>Contraseña</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
-                <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" className="input pl-10 pr-10" required />
+                <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="8+ caracteres, mayúscula, número, símbolo" className="input pl-10 pr-10" required />
                 <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1" style={{ color: 'var(--text-muted)' }}>
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
