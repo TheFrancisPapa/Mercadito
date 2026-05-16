@@ -9,9 +9,8 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-                   style={{ background: 'var(--gradient-brand)' }}>
-                <span style={{ filter: 'brightness(10)' }}>🛒</span>
+              <div className="w-8 h-8 flex items-center justify-center">
+                <img src="/logo-v2.png" alt="Ahorrito" className="w-full h-full object-contain drop-shadow-sm" />
               </div>
               <span className="font-display font-bold text-lg gradient-text">Ahorrito</span>
             </div>
