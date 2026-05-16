@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { supabase } from '../../lib/supabase'
-import { Mail, Lock, Eye, EyeOff, TrendingDown, Users, Shield } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, TrendingDown, Users, Shield, ShoppingBag } from 'lucide-react'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -30,8 +30,9 @@ export default function Login() {
       {/* Brand Panel (Desktop only) */}
       <div className="auth-brand hero-pattern">
         <div className="relative z-10 text-center max-w-md">
-          <div className="w-24 h-24 flex items-center justify-center mx-auto mb-6 animate-float relative z-10">
-            <img src="/logo-v2.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(16,185,129,0.4)]" />
+          <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float relative z-10"
+               style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <ShoppingBag size={40} className="text-white" strokeWidth={1.5} />
           </div>
           <h2 className="font-display text-3xl font-bold text-white mb-3">Bienvenido a Ahorrito</h2>
           <p className="text-sm leading-relaxed" style={{ color: 'rgba(167,243,208,0.7)' }}>
@@ -59,8 +60,9 @@ export default function Login() {
       <div className="auth-form">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <div className="lg:hidden w-14 h-14 flex items-center justify-center mx-auto mb-4 relative z-10">
-              <img src="/logo-v2.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-[0_4px_8px_rgba(16,185,129,0.3)]" />
+            <div className="lg:hidden w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 relative z-10"
+                 style={{ background: 'var(--brand-glow)' }}>
+              <ShoppingBag size={28} className="text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
             </div>
             <h1 className="font-display text-2xl font-bold">Iniciá sesión</h1>
             <p className="text-sm mt-1.5" style={{ color: 'var(--text-muted)' }}>Accedé a tu cuenta de Ahorrito</p>
