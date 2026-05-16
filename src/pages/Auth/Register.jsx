@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { supabase } from '../../lib/supabase'
-import { Mail, Lock, User, Eye, EyeOff, TrendingDown, Users, Shield } from 'lucide-react'
+import { Mail, Lock, User, Eye, EyeOff, TrendingDown, Users, Shield, ShoppingBag, CheckCircle2, Circle } from 'lucide-react'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -66,8 +66,9 @@ export default function Register() {
       {/* Brand Panel (Desktop) */}
       <div className="auth-brand hero-pattern">
         <div className="relative z-10 text-center max-w-md">
-          <div className="w-24 h-24 flex items-center justify-center mx-auto mb-6 animate-float relative z-10">
-            <img src="/logo-v2.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(16,185,129,0.4)]" />
+          <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float relative z-10"
+               style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <ShoppingBag size={40} className="text-white" strokeWidth={1.5} />
           </div>
           <h2 className="font-display text-3xl font-bold text-white mb-3">Unite a Ahorrito</h2>
           <p className="text-sm leading-relaxed" style={{ color: 'rgba(167,243,208,0.7)' }}>
@@ -94,8 +95,9 @@ export default function Register() {
       <div className="auth-form">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <div className="lg:hidden w-14 h-14 flex items-center justify-center mx-auto mb-4 relative z-10">
-              <img src="/logo-v2.png" alt="Ahorrito Logo" className="w-full h-full object-contain drop-shadow-[0_4px_8px_rgba(16,185,129,0.3)]" />
+            <div className="lg:hidden w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 relative z-10"
+                 style={{ background: 'var(--brand-glow)' }}>
+              <ShoppingBag size={28} className="text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
             </div>
             <h1 className="font-display text-2xl font-bold">Creá tu cuenta</h1>
             <p className="text-sm mt-1.5" style={{ color: 'var(--text-muted)' }}>Unite a la comunidad de Ahorrito</p>
@@ -124,23 +126,26 @@ export default function Register() {
               <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>Contraseña</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
-                <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="8+ caracteres, mayúscula, número, símbolo" className="input pl-10 pr-10" required />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1" style={{ color: 'var(--text-muted)' }}>
+                <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña segura" className="input pl-10 pr-10" required />
+                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }}>
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {/* Password Strength */}
-              {password.length > 0 && (
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="flex-1 flex gap-1">
-                    {[1, 2, 3].map(level => (
-                      <div key={level} className="h-1 flex-1 rounded-full transition-colors"
-                        style={{ background: passStrength >= level ? strengthColors[passStrength] : 'var(--border)' }} />
-                    ))}
+              
+              {/* Password Requirements Checklist */}
+              <div className="mt-3 space-y-1.5 px-1">
+                {[
+                  { label: 'Mínimo 8 caracteres', met: password.length >= 8 },
+                  { label: 'Al menos una mayúscula', met: /[A-Z]/.test(password) },
+                  { label: 'Al menos un número', met: /[0-9]/.test(password) },
+                  { label: 'Al menos un símbolo (@, #, !, etc.)', met: /[^A-Za-z0-9]/.test(password) }
+                ].map((req, i) => (
+                  <div key={i} className={`flex items-center gap-2 text-[11px] transition-colors ${req.met ? 'text-emerald-600 dark:text-emerald-500 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {req.met ? <CheckCircle2 size={14} className="text-emerald-500" /> : <Circle size={14} className="opacity-50" />}
+                    <span>{req.label}</span>
                   </div>
-                  <span className="text-[10px] font-bold" style={{ color: strengthColors[passStrength] }}>{strengthLabels[passStrength]}</span>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
 
             <div className="mb-6">
