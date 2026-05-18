@@ -30,6 +30,7 @@ export function Footer() {
                 { to: '/', label: 'Inicio' },
                 { to: '/buscar', label: 'Buscar productos' },
                 { to: '/cargar-precio', label: 'Cargar precio' },
+                { to: '/cotizaciones', label: '💵 Cotizaciones' },
               ].map(link => (
                 <Link key={link.to} to={link.to} 
                   className="text-sm font-medium transition-colors hover:text-teal-500"
@@ -49,6 +50,7 @@ export function Footer() {
               {[
                 { to: '/registro', label: 'Crear cuenta gratis' },
                 { to: '/login', label: 'Iniciar sesión' },
+                { to: '/donar', label: '☕ Apoyar Ahorrito' },
               ].map(link => (
                 <Link key={link.to} to={link.to} 
                   className="text-sm font-medium transition-colors hover:text-teal-500"

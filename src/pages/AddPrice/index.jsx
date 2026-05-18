@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Check, Search, Plus, Store, Tag, MapPin } from 'lucide-react'
+import { ArrowLeft, Check, Search, Plus, Store, Tag, MapPin, AlertTriangle, ExternalLink } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { useUbicacion, useComercios, crearProducto, crearComercio, reportarPrecio, buscarProductoExistente } from '../../hooks/useMercado'
-import { CATEGORIAS_PRODUCTO, TIPOS_COMERCIO, CANALES_COMPRA, PROVINCIAS_AR, CIUDADES_POR_PROVINCIA, fmtPrecio } from '../../data/constants'
+import { useUbicacion, useComercios, crearProducto, crearComercio, reportarPrecio, buscarProductoExistente, buscarPrecioDuplicado, preciosProductoEnComercio } from '../../hooks/useMercado'
+import { CATEGORIAS_PRODUCTO, TIPOS_COMERCIO, CANALES_COMPRA, GRUPOS_CANALES, PROVINCIAS_AR, CIUDADES_POR_PROVINCIA, fmtPrecio } from '../../data/constants'
 
 const STEPS = ['producto', 'comercio', 'precio']
 const STEP_INFO = [
@@ -36,6 +36,9 @@ export default function AddPrice() {
   const [precioOferta, setPrecioOferta] = useState('')
   const [esRetornable, setEsRetornable] = useState(false)
   const [canal, setCanal] = useState('local')
+  const [duplicado, setDuplicado] = useState(null) // precio existente encontrado
+  const [preciosExistentes, setPreciosExistentes] = useState([]) // todos los canales
+  const [verificandoDuplicado, setVerificandoDuplicado] = useState(false)
 
   useEffect(() => { if (!usuario) navigate('/login') }, [usuario, navigate])
 
@@ -63,6 +66,36 @@ export default function AddPrice() {
       setExito(true)
     } catch (e) { setError(e.message || 'Error al guardar') }
     finally { setGuardando(false) }
+  }
+
+  // Verificar duplicados al avanzar al paso de precio
+  const avanzarAPrecio = async () => {
+    const prodId = productoSeleccionado?.id
+    const comId = comercioSeleccionado?.id
+    if (!prodId || !comId) { setStep(2); return }
+
+    setVerificandoDuplicado(true)
+    try {
+      // Buscar precio existente para este canal
+      const dup = await buscarPrecioDuplicado(prodId, comId, canal)
+      setDuplicado(dup)
+      // Buscar todos los precios existentes de este producto en este comercio
+      const existentes = await preciosProductoEnComercio(prodId, comId)
+      setPreciosExistentes(existentes)
+    } catch (e) { console.error(e) }
+    finally { setVerificandoDuplicado(false) }
+    setStep(2)
+  }
+
+  // Re-verificar duplicados cuando cambia el canal
+  const handleCanalChange = async (nuevoCanal) => {
+    setCanal(nuevoCanal)
+    const prodId = productoSeleccionado?.id
+    const comId = comercioSeleccionado?.id
+    if (prodId && comId) {
+      const dup = await buscarPrecioDuplicado(prodId, comId, nuevoCanal)
+      setDuplicado(dup)
+    }
   }
 
   if (!usuario) return null
@@ -180,7 +213,9 @@ export default function AddPrice() {
                 {comerciosFiltrados.length === 0 && comercioBusqueda && <p className="text-sm text-center py-4" style={{ color: 'var(--text-muted)' }}>No se encontraron comercios</p>}
               </div>
               <button onClick={() => { setEsNuevoComercio(true); setNuevoComercio(c => ({ ...c, nombre: comercioBusqueda })) }} className="btn btn-secondary w-full"><Plus size={16} /> Agregar comercio nuevo</button>
-              {comercioSeleccionado && <button onClick={() => setStep(2)} className="btn btn-primary w-full mt-3 btn-lg">Siguiente →</button>}
+              {comercioSeleccionado && <button onClick={avanzarAPrecio} disabled={verificandoDuplicado} className="btn btn-primary w-full mt-3 btn-lg">
+                {verificandoDuplicado ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Verificando...</> : 'Siguiente →'}
+              </button>}
             </>
           ) : (
             <>
@@ -193,7 +228,7 @@ export default function AddPrice() {
                   <div><label className="text-xs font-semibold mb-1 block">Ciudad *</label><select value={nuevoComercio.ciudad} onChange={e => setNuevoComercio(c => ({ ...c, ciudad: e.target.value }))} className="input select text-xs">{(CIUDADES_POR_PROVINCIA[nuevoComercio.provincia] || []).map(c => <option key={c} value={c}>{c}</option>)}</select></div>
                 </div>
               </div>
-              <div className="flex gap-2 mt-4"><button onClick={() => setEsNuevoComercio(false)} className="btn btn-secondary flex-1">Cancelar</button><button onClick={() => { if (nuevoComercio.nombre.trim()) setStep(2) }} className="btn btn-primary flex-1" disabled={!nuevoComercio.nombre.trim()}>Siguiente →</button></div>
+              <div className="flex gap-2 mt-4"><button onClick={() => setEsNuevoComercio(false)} className="btn btn-secondary flex-1">Cancelar</button><button onClick={() => { if (nuevoComercio.nombre.trim()) avanzarAPrecio() }} className="btn btn-primary flex-1" disabled={!nuevoComercio.nombre.trim() || verificandoDuplicado}>{verificandoDuplicado ? 'Verificando...' : 'Siguiente →'}</button></div>
             </>
           )}
         </motion.div>
@@ -210,16 +245,89 @@ export default function AddPrice() {
           <div className="card p-5 flex flex-col gap-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
             <div>
               <label className="text-xs font-semibold mb-2 block">📡 Canal de compra</label>
-              <div className="grid grid-cols-2 gap-2">
-                {CANALES_COMPRA.map(c => (
-                  <button key={c.id} onClick={() => setCanal(c.id)}
-                    className="p-2.5 rounded-xl text-xs font-bold text-center transition-all"
-                    style={canal === c.id ? { border: '2px solid var(--brand)', background: 'var(--brand-glow)', color: 'var(--brand-dark)' } : { border: '1.5px solid var(--border)' }}>
-                    {c.emoji} {c.nombre}
-                  </button>
-                ))}
+              <div className="flex flex-col gap-3">
+                {GRUPOS_CANALES.map(grupo => {
+                  const canalesGrupo = CANALES_COMPRA.filter(c => c.grupo === grupo.id)
+                  if (canalesGrupo.length === 0) return null
+                  return (
+                    <div key={grupo.id}>
+                      <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                        {grupo.emoji} {grupo.nombre}
+                      </p>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {canalesGrupo.map(c => (
+                          <button key={c.id} onClick={() => handleCanalChange(c.id)}
+                            className="p-2 rounded-xl text-[11px] font-bold text-center transition-all"
+                            style={canal === c.id 
+                              ? { border: '2px solid var(--brand)', background: 'var(--brand-glow)', color: 'var(--brand-dark)' } 
+                              : { border: '1.5px solid var(--border)', color: 'var(--text-secondary)' }}>
+                            {c.emoji} {c.nombre}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
+
+            {/* Alerta de duplicado */}
+            {duplicado && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl p-4"
+                style={{ background: 'rgba(245,158,11,0.08)', border: '1.5px solid rgba(245,158,11,0.25)' }}
+              >
+                <div className="flex items-start gap-3">
+                  <AlertTriangle size={20} className="flex-shrink-0 mt-0.5" style={{ color: '#d97706' }} />
+                  <div className="flex-1">
+                    <p className="text-sm font-bold" style={{ color: '#d97706' }}>¡Este producto ya tiene precio!</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                      <strong>{duplicado.productos?.nombre}</strong> en <strong>{duplicado.comercios?.nombre}</strong> ya está cargado a <strong>{fmtPrecio(duplicado.precio)}</strong>
+                      {duplicado.comercios?.direccion && ` · ${duplicado.comercios.direccion}`}
+                    </p>
+                    <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>
+                      Podés actualizar el precio si cambió, o ver el detalle del producto.
+                    </p>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => navigate(`/producto/${duplicado.producto_id}`)}
+                        className="btn btn-secondary btn-sm flex items-center gap-1"
+                      >
+                        <ExternalLink size={12} /> Ver producto
+                      </button>
+                      <button
+                        onClick={() => { setPrecioInput(String(duplicado.precio)); setDuplicado(null) }}
+                        className="btn btn-sm font-bold" style={{ background: 'rgba(245,158,11,0.15)', color: '#d97706', border: '1px solid rgba(245,158,11,0.3)' }}
+                      >
+                        📝 Actualizar precio
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Otros precios existentes en este comercio */}
+            {preciosExistentes.length > 0 && !duplicado && (
+              <div className="rounded-xl p-3" style={{ background: 'var(--bg-secondary)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+                  Precios existentes de este producto aquí
+                </p>
+                <div className="flex flex-col gap-1">
+                  {preciosExistentes.map(pe => {
+                    const ci = CANALES_COMPRA.find(c => c.id === pe.canal)
+                    return (
+                      <div key={pe.id} className="flex items-center justify-between text-xs py-1">
+                        <span style={{ color: 'var(--text-secondary)' }}>{ci?.emoji} {ci?.nombre || pe.canal}</span>
+                        <span className="font-bold" style={{ color: 'var(--brand)' }}>{fmtPrecio(pe.precio)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="text-xs font-semibold mb-1.5 block">💰 Precio *</label>
