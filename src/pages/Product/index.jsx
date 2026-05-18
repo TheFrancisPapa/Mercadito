@@ -47,7 +47,10 @@ export default function ProductDetail() {
   const precioMax = preciosFiltrados.length ? Math.max(...preciosFiltrados.map(p => p.precio)) : 0
   const ahorro = precioMax > 0 ? precioMax - precioMin : 0
   const ahorroPct = precioMax > 0 ? Math.round((ahorro / precioMax) * 100) : 0
-  const top3 = [...preciosFiltrados].sort((a, b) => { const pa = a.en_oferta && a.precio_oferta ? a.precio_oferta : a.precio; const pb = b.en_oferta && b.precio_oferta ? b.precio_oferta : b.precio; return pa - pb }).slice(0, 3)
+  const preciosOrdenados = [...preciosFiltrados].sort((a, b) => { const pa = a.en_oferta && a.precio_oferta ? a.precio_oferta : a.precio; const pb = b.en_oferta && b.precio_oferta ? b.precio_oferta : b.precio; return pa - pb })
+  const top3 = preciosOrdenados.slice(0, 3)
+  // Canales con precios disponibles
+  const canalesDisponibles = [...new Set(precios.map(p => p.canal))]
 
   const handleVoto = async (precioId, tipo) => { setVotando(precioId); try { await votarPrecio(precioId, tipo); await recargar() } catch (e) { console.error(e) } finally { setVotando(null) } }
   const handleSolicitud = async (precioId) => { if (!nuevoPrecioInput || isNaN(nuevoPrecioInput)) return; setGuardando(true); try { await crearSolicitudPrecio(precioId, nuevoPrecioInput, motivoInput); setEditandoPrecioId(null); setNuevoPrecioInput(''); setMotivoInput('') } catch (e) { console.error(e) } finally { setGuardando(false) } }
@@ -148,6 +151,29 @@ export default function ProductDetail() {
                 return (
                   <motion.div key={p.precio_id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                     className={`card p-4 ${i === 0 ? 'price-best' : ''}`} style={i === 0 ? { boxShadow: 'var(--shadow-md)' } : {}}>
+                    {/* Tier position + price bar */}
+                    {preciosFiltrados.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <span className="text-[10px] font-extrabold w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
+                          style={i === 0 ? { background: 'var(--brand-glow-strong)', color: 'var(--brand-dark)' }
+                            : i === 1 ? { background: 'rgba(168,162,158,0.15)', color: '#78716c' }
+                            : i === 2 ? { background: 'rgba(180,83,9,0.1)', color: '#b45309' }
+                            : { background: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
+                          {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}
+                        </span>
+                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-secondary)' }}>
+                          <div className="h-full rounded-full transition-all" style={{
+                            width: precioMin > 0 ? `${Math.min(100, (precioMin / precioEfectivo) * 100)}%` : '100%',
+                            background: i === 0 ? 'var(--brand)' : i <= 2 ? 'var(--brand-light)' : 'var(--text-muted)'
+                          }} />
+                        </div>
+                        {i > 0 && precioMin > 0 && (
+                          <span className="text-[9px] font-bold flex-shrink-0" style={{ color: '#ef4444' }}>
+                            +{Math.round(((precioEfectivo - precioMin) / precioMin) * 100)}%
+                          </span>
+                        )}
+                      </div>
+                    )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0`}
@@ -156,19 +182,26 @@ export default function ProductDetail() {
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <Link to={`/comercio/${p.comercio_id}`} className="text-sm font-bold transition-colors truncate" style={{ color: 'var(--text-primary)' }}
-                              onMouseEnter={e => e.target.style.color = 'var(--brand)'} onMouseLeave={e => e.target.style.color = 'var(--text-primary)'}>{p.comercio_nombre}</Link>
+                            <Link to={`/comercio/${p.comercio_id}`} className="text-sm font-bold transition-colors truncate flex items-center gap-1 group/link" style={{ color: 'var(--text-primary)' }}
+                              onMouseEnter={e => e.currentTarget.style.color = 'var(--brand)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-primary)'}>{p.comercio_nombre} <ExternalLink size={10} className="opacity-0 group-hover/link:opacity-100 transition-opacity" /></Link>
                             {p.en_oferta && <span className="badge badge-red">🔥 Oferta</span>}
                             {p.es_retornable && <span className="badge badge-sky">♻️ Ret.</span>}
                             {p.comercio_verificado && <span className="badge badge-brand">✓</span>}
                             {p.votos_ok > (p.votos_desactual || 0) && <span className="badge" style={{ background: 'var(--brand-glow)', color: 'var(--brand-dark)', borderColor: 'var(--brand-light)' }}>✓ Verificado</span>}
                           </div>
                           <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>{p.comercio_dir || tipoInfo?.nombre}</p>
-                          {p.canal !== 'local' && (
-                            <span className={`badge mt-0.5 ${p.canal === 'pedidos_ya' ? 'badge-violet' : p.canal === 'rappi' ? 'badge-amber' : 'badge-sky'}`}>
-                              {canalInfo?.emoji} {canalInfo?.nombre}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {p.canal !== 'local' && (
+                              <span className={`badge mt-0.5 ${p.canal === 'pedidos_ya' ? 'badge-violet' : p.canal === 'rappi' ? 'badge-amber' : 'badge-sky'}`}>
+                                {canalInfo?.emoji} {canalInfo?.nombre}
+                              </span>
+                            )}
+                            <Link to={`/comercio/${p.comercio_id}`}
+                              className="text-[9px] font-bold mt-0.5 transition-colors inline-flex items-center gap-0.5"
+                              style={{ color: 'var(--brand)' }}>
+                              Ver todos los productos →
+                            </Link>
+                          </div>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0 ml-3">

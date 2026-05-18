@@ -11,6 +11,8 @@ import AddPrice from './pages/AddPrice'
 import Profile from './pages/Profile'
 import Moderation from './pages/Moderation'
 import SmartCart from './pages/SmartCart'
+import Cotizaciones from './pages/Cotizaciones'
+import Donar from './pages/Donar'
 import { useAuth } from './context/AuthContext'
 
 export default function App() {
@@ -45,6 +47,8 @@ export default function App() {
           <Route path="/perfil" element={<Profile />} />
           <Route path="/moderacion" element={<Moderation />} />
           <Route path="/lista-inteligente" element={<SmartCart />} />
+          <Route path="/cotizaciones" element={<Cotizaciones />} />
+          <Route path="/donar" element={<Donar />} />
         </Routes>
       </main>
       <Footer />

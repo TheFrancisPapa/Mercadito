@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Search, TrendingDown, Store, Users, ArrowRight, Sparkles, ChevronRight, Zap, Heart, Shield } from 'lucide-react'
+import { Search, TrendingDown, Store, Users, ArrowRight, Sparkles, ChevronRight, Zap, Heart, Shield, DollarSign, Coffee } from 'lucide-react'
 import { CATEGORIAS_PRODUCTO } from '../../data/constants'
 import { useUbicacion, usePopulares } from '../../hooks/useMercado'
 import { fmtPrecio } from '../../data/constants'
+import { useCotizaciones, NOMBRES_DOLAR } from '../../hooks/useCotizaciones'
 
 const HERO_EXAMPLES = ['Coca-Cola', 'Yerba Mate', 'Arroz', 'Zapatillas', 'Perfume', 'Leche']
 
@@ -14,6 +15,7 @@ export default function Home() {
   const [placeholderIdx, setPlaceholderIdx] = useState(0)
   const { ubicacion } = useUbicacion()
   const { populares } = usePopulares(ubicacion.ciudad, ubicacion.provincia)
+  const { cotizaciones, dolarBlue, cargando: cargandoCotiz } = useCotizaciones()
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -186,6 +188,73 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══ Cotizaciones Rápidas ═══ */}
+      {cotizaciones.dolares.length > 0 && (
+        <section style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
+          <div className="container-app py-8 md:py-10">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="flex items-center justify-between mb-5"
+            >
+              <div>
+                <h2 className="font-display text-xl md:text-2xl font-bold flex items-center gap-2">
+                  💵 Cotizaciones del día
+                </h2>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Para que conviertas precios al instante</p>
+              </div>
+              <button onClick={() => navigate('/cotizaciones')}
+                className="btn btn-ghost btn-sm" style={{ color: 'var(--brand)' }}>
+                Ver todas <ChevronRight size={14} />
+              </button>
+            </motion.div>
+            <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
+              {cotizaciones.dolares.slice(0, 5).map((d, i) => {
+                const casa = d.casa?.toLowerCase() || d.nombre?.toLowerCase() || ''
+                const info = Object.entries(NOMBRES_DOLAR).find(([key]) => casa.includes(key))?.[1]
+                if (!info) return null
+                return (
+                  <motion.button
+                    key={i}
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    onClick={() => navigate('/cotizaciones')}
+                    className="card card-interactive flex-shrink-0 p-3.5 min-w-[140px]"
+                  >
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className="text-sm">{info.emoji}</span>
+                      <span className="text-[11px] font-bold">{info.nombre}</span>
+                    </div>
+                    <p className="text-lg font-extrabold" style={{ color: info.color }}>{fmtPrecio(d.venta)}</p>
+                    <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>Venta</p>
+                  </motion.button>
+                )
+              })}
+              {cotizaciones.brl && (
+                <motion.button
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.25 }}
+                  onClick={() => navigate('/cotizaciones')}
+                  className="card card-interactive flex-shrink-0 p-3.5 min-w-[140px]"
+                >
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="text-sm">🇧🇷</span>
+                    <span className="text-[11px] font-bold">Real</span>
+                  </div>
+                  <p className="text-lg font-extrabold" style={{ color: '#16a34a' }}>{fmtPrecio(cotizaciones.brl.venta)}</p>
+                  <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>Venta</p>
+                </motion.button>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ═══ Popular Products ═══ */}
       {populares.length > 0 && (
         <section className="py-10 md:py-14" style={{ background: 'var(--bg-secondary)' }}>
@@ -245,6 +314,40 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* ═══ Apoyar Ahorrito ═══ */}
+      <section className="py-10 md:py-14">
+        <div className="container-app">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="card overflow-hidden"
+            style={{ boxShadow: 'var(--shadow-lg)' }}
+          >
+            <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center gap-6"
+              style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.05))' }}>
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(245,158,11,0.3))' }}>
+                <span className="text-3xl">☕</span>
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="font-display text-lg font-bold mb-1">¿Te gusta Ahorrito?</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                  Somos un proyecto gratuito hecho para la comunidad. Con tu apoyo podemos llegar a más ciudades y seguir ayudando a todos a ahorrar.
+                </p>
+              </div>
+              <button
+                onClick={() => navigate('/donar')}
+                className="btn btn-lg font-bold flex-shrink-0 transition-all hover:scale-105"
+                style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', boxShadow: '0 4px 16px rgba(245,158,11,0.3)' }}
+              >
+                <Coffee size={18} /> Invitame un cafecito
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* ═══ CTA & Benefits Section ═══ */}
       <section className="py-16 md:py-24 relative overflow-hidden">

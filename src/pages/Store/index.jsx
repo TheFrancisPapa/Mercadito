@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, MapPin, Clock, Shield, Star, ExternalLink } from 'lucide-react'
+import { ArrowLeft, MapPin, Clock, Shield, Star, ExternalLink, Share2, Package, Tag, TrendingDown } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useReviews, crearReview } from '../../hooks/useMercado'
-import { TIPOS_COMERCIO, fmtPrecio, tiempoDesde } from '../../data/constants'
+import { TIPOS_COMERCIO, CATEGORIAS_PRODUCTO, CANALES_COMPRA, fmtPrecio, tiempoDesde } from '../../data/constants'
 
 export default function StoreProfile() {
   const { id } = useParams()
@@ -18,12 +18,13 @@ export default function StoreProfile() {
   const [nuevaEstrellas, setNuevaEstrellas] = useState(0)
   const [nuevoComentario, setNuevoComentario] = useState('')
   const [guardandoReview, setGuardandoReview] = useState(false)
+  const [categoriaFiltro, setCategoriaFiltro] = useState(null)
 
   useEffect(() => {
     async function cargar() {
       const { data: c } = await supabase.from('comercios').select('*').eq('id', id).single()
       setComercio(c)
-      const { data: p } = await supabase.from('precios_productos').select('*, productos(nombre, marca, presentacion, categoria)').eq('comercio_id', id).order('updated_at', { ascending: false }).limit(20)
+      const { data: p } = await supabase.from('precios_productos').select('*, productos(nombre, marca, presentacion, categoria)').eq('comercio_id', id).order('updated_at', { ascending: false }).limit(50)
       setPrecios(p || []); setCargando(false)
     }
     cargar()
@@ -42,6 +43,40 @@ export default function StoreProfile() {
     finally { setGuardandoReview(false) }
   }
 
+  const handleCompartir = async () => {
+    const url = window.location.href
+    const text = `Mirá los precios en ${comercio.nombre} en Ahorrito`
+    if (navigator.share) {
+      try { await navigator.share({ title: comercio.nombre, text, url }) } catch {}
+    } else {
+      await navigator.clipboard.writeText(url)
+      alert('Link copiado al portapapeles!')
+    }
+  }
+
+  // Stats computados
+  const stats = useMemo(() => {
+    if (!precios.length) return null
+    const categorias = [...new Set(precios.map(p => p.productos?.categoria).filter(Boolean))]
+    const canales = [...new Set(precios.map(p => p.canal).filter(Boolean))]
+    const preciosProm = precios.reduce((a, p) => a + (p.en_oferta && p.precio_oferta ? p.precio_oferta : p.precio), 0) / precios.length
+    const ultimaAct = precios.reduce((m, p) => { const d = new Date(p.updated_at); return d > m ? d : m }, new Date(0))
+    const ofertas = precios.filter(p => p.en_oferta).length
+    return { categorias, canales, preciosProm, ultimaAct, ofertas }
+  }, [precios])
+
+  // Agrupar productos por categoría
+  const productosPorCategoria = useMemo(() => {
+    const filtrados = categoriaFiltro ? precios.filter(p => p.productos?.categoria === categoriaFiltro) : precios
+    const grupos = {}
+    filtrados.forEach(p => {
+      const cat = p.productos?.categoria || 'otros'
+      if (!grupos[cat]) grupos[cat] = []
+      grupos[cat].push(p)
+    })
+    return Object.entries(grupos).sort((a, b) => b[1].length - a[1].length)
+  }, [precios, categoriaFiltro])
+
   if (cargando) return <div className="container-app max-w-4xl py-8"><div className="skeleton h-40" /><div className="skeleton h-24 mt-4" /></div>
   if (!comercio) return <div className="container-app max-w-4xl py-16 text-center"><div className="text-5xl mb-4">😕</div><h2 className="font-display text-xl font-bold">Comercio no encontrado</h2></div>
 
@@ -54,19 +89,19 @@ export default function StoreProfile() {
       </button>
 
       {/* Store Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card p-6 mb-6" style={{ boxShadow: 'var(--shadow-lg)' }}>
-        <div className="flex items-center gap-4">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card p-6 mb-5" style={{ boxShadow: 'var(--shadow-lg)' }}>
+        <div className="flex items-start gap-4">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: 'var(--brand-glow)' }}>
             {comercio.logo_url ? <img src={comercio.logo_url} alt="" className="w-full h-full object-cover rounded-2xl" /> : tipoInfo?.emoji || '🏪'}
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-bold font-display">{comercio.nombre}</h1>
+              <h1 className="text-xl font-bold font-display truncate">{comercio.nombre}</h1>
               {comercio.verificado && <span className="badge badge-brand">✓ Verificado</span>}
             </div>
             <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{tipoInfo?.nombre || comercio.tipo} · {comercio.ciudad}, {comercio.provincia}</p>
             {comercio.direccion && <p className="text-xs flex items-center gap-1 mt-1" style={{ color: 'var(--text-secondary)' }}><MapPin size={12} /> {comercio.direccion}</p>}
-            <div className="flex items-center gap-3 mt-2.5">
+            <div className="flex items-center gap-3 mt-2.5 flex-wrap">
               {comercio.rating_promedio > 0 && (
                 <div className="flex items-center gap-1">
                   <Star size={14} className="text-amber-400 fill-amber-400" />
@@ -74,41 +109,121 @@ export default function StoreProfile() {
                   <span className="text-xs" style={{ color: 'var(--text-muted)' }}>({comercio.total_reviews})</span>
                 </div>
               )}
-              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{precios.length} producto{precios.length !== 1 ? 's' : ''}</span>
+              <button onClick={handleCompartir} className="btn btn-ghost btn-sm flex items-center gap-1" style={{ color: 'var(--brand)' }}>
+                <Share2 size={12} /> Compartir
+              </button>
             </div>
           </div>
         </div>
       </motion.div>
 
+      {/* Summary Stats */}
+      {stats && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+          <div className="card p-3 text-center">
+            <Package size={16} className="mx-auto mb-1" style={{ color: 'var(--brand)' }} />
+            <p className="text-lg font-extrabold">{precios.length}</p>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Productos</p>
+          </div>
+          <div className="card p-3 text-center">
+            <Tag size={16} className="mx-auto mb-1" style={{ color: '#8b5cf6' }} />
+            <p className="text-lg font-extrabold">{stats.categorias.length}</p>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Categorías</p>
+          </div>
+          <div className="card p-3 text-center">
+            <TrendingDown size={16} className="mx-auto mb-1" style={{ color: '#10b981' }} />
+            <p className="text-lg font-extrabold">{stats.ofertas}</p>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>En oferta</p>
+          </div>
+          <div className="card p-3 text-center">
+            <Clock size={16} className="mx-auto mb-1" style={{ color: '#f59e0b' }} />
+            <p className="text-sm font-extrabold">{tiempoDesde(stats.ultimaAct)}</p>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Última carga</p>
+          </div>
+        </motion.div>
+      )}
+
       <div className="grid lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2">
+          {/* Category Filter */}
+          {stats && stats.categorias.length > 1 && (
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-2 mb-4">
+              <button onClick={() => setCategoriaFiltro(null)} className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all"
+                style={!categoriaFiltro ? { background: 'var(--brand-glow)', borderColor: 'var(--brand)', color: 'var(--brand-dark)' } : { borderColor: 'var(--border)', color: 'var(--text-muted)' }}>
+                Todos ({precios.length})
+              </button>
+              {stats.categorias.map(catId => {
+                const catInfo = CATEGORIAS_PRODUCTO.find(c => c.id === catId)
+                const count = precios.filter(p => p.productos?.categoria === catId).length
+                return (
+                  <button key={catId} onClick={() => setCategoriaFiltro(categoriaFiltro === catId ? null : catId)}
+                    className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap"
+                    style={categoriaFiltro === catId ? { background: 'var(--brand-glow)', borderColor: 'var(--brand)', color: 'var(--brand-dark)' } : { borderColor: 'var(--border)', color: 'var(--text-muted)' }}>
+                    {catInfo?.emoji} {catInfo?.nombre || catId} ({count})
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Products grouped by category */}
           <h3 className="text-sm font-bold mb-3">🏷️ Productos en este comercio</h3>
           {precios.length === 0 ? (
             <div className="card p-8 text-center" style={{ background: 'var(--bg-secondary)' }}>
               <p className="text-3xl mb-2">📦</p>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Aún no hay precios cargados para este comercio</p>
+              <button onClick={() => navigate('/cargar-precio')} className="btn btn-primary btn-sm mt-3">Cargar un precio</button>
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
-              {precios.map((p, i) => (
-                <motion.div key={p.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="card p-3.5 card-hover">
-                  <Link to={`/producto/${p.producto_id}`} className="flex items-center justify-between">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold truncate">{p.productos?.nombre}</p>
-                      <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                        {p.productos?.marca} {p.productos?.presentacion && `· ${p.productos?.presentacion}`}
-                        {p.en_oferta && <span className="ml-1 text-red-500 font-bold">🔥 Oferta</span>}
-                      </p>
+            <div className="flex flex-col gap-5">
+              {productosPorCategoria.map(([catId, items]) => {
+                const catInfo = CATEGORIAS_PRODUCTO.find(c => c.id === catId)
+                return (
+                  <div key={catId}>
+                    {!categoriaFiltro && productosPorCategoria.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm">{catInfo?.emoji || '📦'}</span>
+                        <span className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>{catInfo?.nombre || 'Otros'}</span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>{items.length}</span>
+                        <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-1.5">
+                      {items.map((p, i) => {
+                        const canalInfo = CANALES_COMPRA.find(c => c.id === p.canal)
+                        return (
+                          <motion.div key={p.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="card p-3.5 card-hover">
+                            <Link to={`/producto/${p.producto_id}`} className="flex items-center justify-between">
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-bold truncate">{p.productos?.nombre}</p>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                                    {p.productos?.marca} {p.productos?.presentacion && `· ${p.productos?.presentacion}`}
+                                  </p>
+                                  {p.en_oferta && <span className="text-[10px] text-red-500 font-bold">🔥 Oferta</span>}
+                                  {p.canal !== 'local' && (
+                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
+                                      {canalInfo?.emoji} {canalInfo?.nombre}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right flex-shrink-0 ml-3">
+                                <p className="text-base font-extrabold" style={{ color: 'var(--brand)' }}>{fmtPrecio(p.en_oferta && p.precio_oferta ? p.precio_oferta : p.precio)}</p>
+                                {p.en_oferta && p.precio_oferta && <p className="text-[9px] line-through" style={{ color: 'var(--text-muted)' }}>{fmtPrecio(p.precio)}</p>}
+                                <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{tiempoDesde(p.updated_at)}</p>
+                              </div>
+                            </Link>
+                          </motion.div>
+                        )
+                      })}
                     </div>
-                    <div className="text-right flex-shrink-0 ml-3">
-                      <p className="text-base font-extrabold" style={{ color: 'var(--brand)' }}>{fmtPrecio(p.en_oferta && p.precio_oferta ? p.precio_oferta : p.precio)}</p>
-                      <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{tiempoDesde(p.updated_at)}</p>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
+                  </div>
+                )
+              })}
             </div>
           )}
+          {usuario && <button onClick={() => navigate('/cargar-precio')} className="w-full mt-5 btn btn-primary btn-lg">🏷️ Cargar precio en este comercio</button>}
         </div>
 
         <div className="lg:col-span-1">

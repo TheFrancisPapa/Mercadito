@@ -65,10 +65,26 @@ export const TIPOS_COMERCIO = [
 ]
 
 export const CANALES_COMPRA = [
-  { id: 'local', nombre: 'En el local', emoji: '🏪', color: 'emerald' },
-  { id: 'pedidos_ya', nombre: 'Pedidos Ya', emoji: '🛵', color: 'violet' },
-  { id: 'rappi', nombre: 'Rappi', emoji: '🏍️', color: 'orange' },
-  { id: 'online', nombre: 'Página online', emoji: '🌐', color: 'sky' },
+  { id: 'local', nombre: 'En el local', emoji: '🏪', color: 'emerald', grupo: 'directo' },
+  { id: 'pedidos_ya', nombre: 'Pedidos Ya', emoji: '🛵', color: 'violet', grupo: 'delivery' },
+  { id: 'rappi', nombre: 'Rappi', emoji: '🏍️', color: 'orange', grupo: 'delivery' },
+  { id: 'uber_eats', nombre: 'Uber Eats', emoji: '🚗', color: 'lime', grupo: 'delivery' },
+  { id: 'online', nombre: 'Web oficial', emoji: '🌐', color: 'sky', grupo: 'online' },
+  { id: 'mercado_libre', nombre: 'Mercado Libre', emoji: '🟡', color: 'yellow', grupo: 'online' },
+  { id: 'tienda_nube', nombre: 'Tienda Nube', emoji: '☁️', color: 'indigo', grupo: 'online' },
+  { id: 'app_mcdonalds', nombre: 'App McDonald\'s', emoji: '🍟', color: 'red', grupo: 'app_marca' },
+  { id: 'app_burger_king', nombre: 'App Burger King', emoji: '🍔', color: 'amber', grupo: 'app_marca' },
+  { id: 'app_mostaza', nombre: 'App Mostaza', emoji: '🌭', color: 'yellow', grupo: 'app_marca' },
+  { id: 'app_grido', nombre: 'App Grido', emoji: '🍦', color: 'cyan', grupo: 'app_marca' },
+  { id: 'app_kfc', nombre: 'App KFC', emoji: '🍗', color: 'red', grupo: 'app_marca' },
+  { id: 'app_starbucks', nombre: 'App Starbucks', emoji: '☕', color: 'green', grupo: 'app_marca' },
+]
+
+export const GRUPOS_CANALES = [
+  { id: 'directo', nombre: 'Compra directa', emoji: '🏪' },
+  { id: 'delivery', nombre: 'Apps de delivery', emoji: '🛵' },
+  { id: 'app_marca', nombre: 'Apps de marcas', emoji: '📱' },
+  { id: 'online', nombre: 'Tiendas online', emoji: '🌐' },
 ]
 
 // ── Helpers ──────────────────────────────────────────────────

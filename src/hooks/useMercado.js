@@ -312,3 +312,30 @@ export async function buscarProductoExistente(nombre) {
     .limit(8)
   return data || []
 }
+
+// Verificar si ya existe un precio para producto + comercio + canal
+export async function buscarPrecioDuplicado(productoId, comercioId, canal = 'local') {
+  if (!productoId || !comercioId) return null
+  const { data, error } = await supabase
+    .from('precios_productos')
+    .select('*, productos(nombre, marca, presentacion), comercios(nombre, direccion)')
+    .eq('producto_id', productoId)
+    .eq('comercio_id', comercioId)
+    .eq('canal', canal)
+    .maybeSingle()
+  if (error) { console.error('Error buscando duplicado:', error); return null }
+  return data
+}
+
+// Obtener todos los precios de un producto en un comercio (todos los canales)
+export async function preciosProductoEnComercio(productoId, comercioId) {
+  if (!productoId || !comercioId) return []
+  const { data, error } = await supabase
+    .from('precios_productos')
+    .select('*, productos(nombre, marca, presentacion)')
+    .eq('producto_id', productoId)
+    .eq('comercio_id', comercioId)
+    .order('canal')
+  if (error) { console.error(error); return [] }
+  return data || []
+}

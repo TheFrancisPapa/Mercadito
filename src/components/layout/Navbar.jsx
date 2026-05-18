@@ -1,9 +1,11 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
-import { Search, Plus, User, Shield, LogOut, Menu, X, Home, Tag, Sparkles, Sun, Moon } from 'lucide-react'
+import { Search, Plus, User, Shield, LogOut, Menu, X, Home, Tag, Sparkles, Sun, Moon, DollarSign, Coffee } from 'lucide-react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useCotizaciones } from '../../hooks/useCotizaciones'
+import { fmtPrecio } from '../../data/constants'
 
 export function Navbar() {
   const { usuario, esMod, logout } = useAuth()
@@ -11,6 +13,7 @@ export function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const { dolarBlue } = useCotizaciones()
 
   const isActive = (path) => location.pathname === path
 
@@ -47,6 +50,22 @@ export function Navbar() {
                 ⌘K
               </span>
             </button>
+            {/* Dollar badge */}
+            {dolarBlue?.venta && (
+              <button
+                onClick={() => navigate('/cotizaciones')}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-bold transition-all hover:scale-105 cursor-pointer"
+                style={{ 
+                  background: 'var(--brand-glow)', 
+                  border: '1px solid var(--brand-light)',
+                  color: 'var(--brand-dark)'
+                }}
+                title="Ver cotizaciones"
+              >
+                <DollarSign size={11} />
+                Blue {fmtPrecio(dolarBlue.venta)}
+              </button>
+            )}
           </div>
 
           {/* Desktop Actions */}
@@ -89,6 +108,21 @@ export function Navbar() {
 
           {/* Mobile: Only hamburger for auth actions, main nav is bottom bar */}
           <div className="md:hidden flex items-center gap-1">
+            {/* Mobile dollar badge */}
+            {dolarBlue?.venta && (
+              <button
+                onClick={() => navigate('/cotizaciones')}
+                className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-bold transition-all"
+                style={{ 
+                  background: 'var(--brand-glow)', 
+                  border: '1px solid var(--brand-light)',
+                  color: 'var(--brand-dark)'
+                }}
+              >
+                <DollarSign size={10} />
+                {fmtPrecio(dolarBlue.venta)}
+              </button>
+            )}
             <button onClick={toggleTheme} className="btn btn-ghost btn-sm p-2"
               style={{ borderRadius: 'var(--radius-full)' }}>
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
@@ -118,6 +152,14 @@ export function Navbar() {
               style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-card)' }}
             >
               <div className="p-3 flex flex-col gap-1.5">
+                <button onClick={() => { navigate('/cotizaciones'); setMenuOpen(false) }} 
+                  className="btn btn-secondary w-full justify-start text-sm">
+                  <DollarSign size={16} /> Cotizaciones
+                </button>
+                <button onClick={() => { navigate('/donar'); setMenuOpen(false) }} 
+                  className="btn btn-secondary w-full justify-start text-sm">
+                  <Coffee size={16} /> Apoyar Ahorrito
+                </button>
                 {esMod && (
                   <button onClick={() => { navigate('/moderacion'); setMenuOpen(false) }} 
                     className="btn btn-secondary w-full justify-start text-sm">
